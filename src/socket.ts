@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { io } from 'socket.io-client';
+import { io } from 'socket.io-client'
 
 export const state = reactive({
   connected: false,
@@ -7,7 +7,8 @@ export const state = reactive({
   barEvents: [],
 })
 
-const URL = import.meta.env.NODE_ENV === 'production' ? import.meta.env.REMOTE_SERVER : 'http://localhost:3000'
+const URL = import.meta.env.REMOTE_SERVER
+// const URL = 'http://localhost:3000';
 
 export const socket: ReturnType<typeof io> = io(URL, {
   withCredentials: true,
