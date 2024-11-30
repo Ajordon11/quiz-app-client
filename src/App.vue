@@ -1,9 +1,16 @@
 <script setup lang="ts">
 // See vite.config.ts for details about automatic imports
-const route = useRoute()
+import { useConnectionStore } from "@/connection";
+import { socket } from "@/socket";
 
+const route = useRoute();
+const connectionStore = useConnectionStore();
+
+socket.off();
+
+connectionStore.bindEvents();
 useHead({
-  title: () => route.meta.title || 'Vite + Vue Template',
+  title: () => route.meta.title || 'Quiz App Client',
   meta: [
     {
       property: 'og:title',
