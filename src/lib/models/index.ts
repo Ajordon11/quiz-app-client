@@ -18,3 +18,13 @@ export type AlertProps = {
     timeout?: number;
     dismissable?: boolean;
 };
+
+export type Game = {
+    id: string;
+    name: string;
+    status: string;
+    rounds: number;
+    questionSet: string;
+    createdAt: Date;
+    players: number;
+};

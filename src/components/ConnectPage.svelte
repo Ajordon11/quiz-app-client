@@ -14,6 +14,7 @@
         $activeComponentLabel = "Lobby";
     }, 3000);
   });
+
 </script>
 
 <div>

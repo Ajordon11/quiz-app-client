@@ -1,30 +1,13 @@
 import { io, type Socket } from "socket.io-client";
 import { writable } from "svelte/store";
-import type { AlertProps, Player } from "../models";
+import type { Player } from "../models";
 
+const url = import.meta.env.PROD
+? import.meta.env.VITE_PROD_SERVER_URL
+: import.meta.env.VITE_DEV_SERVER_URL;
+export const URL = writable(url);
 export const activeComponent = writable("ConnectPage");
 export const activeComponentLabel = writable("Connect");
-// export const socket = writable<Socket>(io("https://quiz-app-server-xatw.onrender.com"));
-export const socket = writable<Socket>(io("http://localhost:3000"));
+export const socket = writable<Socket>(io(url));
 
 export const player = writable<Player>();
-
-export const alerts = writable<AlertProps[]>([]);
-export const addAlert = (alert: AlertProps) => {
-  const id = Math.floor(Math.random() * 10000);
-  const defaults = {
-    id,
-    color: "secondary",
-    dismissable: true,
-    timeout: 3000,
-  };
-  alerts.update((all) => [{ ...defaults, ...alert }, ...all]);
-  return id;
-};
-export const dismissAlert = (id: number) => {
-  alerts.update((all) => all.filter((t) => t.id !== id));
-};
-
-export const clearAlerts = () => {
-  alerts.set([]);
-};

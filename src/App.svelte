@@ -32,6 +32,9 @@
     {#if $activeComponent === "Lobby"}
       <Lobby />
     {/if}
+    {#if $activeComponent === "Game"}
+      Hello in game
+    {/if}
     <!-- {#if $activeComponent === "QuestionMultipleChoice"}
         <QuestionMultipleChoice {currentRound} question={currentQuestion} />
         {/if}
