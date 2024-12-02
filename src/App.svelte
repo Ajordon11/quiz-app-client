@@ -15,7 +15,7 @@
   });
 </script>
 
-<main>
+<main class="dark">
   <h1>{connected}</h1>
 </main>
 
