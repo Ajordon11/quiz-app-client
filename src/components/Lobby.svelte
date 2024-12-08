@@ -13,7 +13,7 @@
     TableHeadCell,
     type SelectOptionType,
   } from "flowbite-svelte";
-  import { activeComponent, activeComponentLabel, player, socket, URL } from "../lib/stores/index ";
+  import { activeComponent, activeComponentLabel, currentGame, player, socket, URL } from "../lib/stores/index ";
   import type { Game, Player, SocketResponse } from "../lib/models";
   import { addAlert, clearAlerts } from "../lib/stores/alerts";
   import { onMount } from "svelte";
@@ -81,8 +81,10 @@
         { gameId: selectedGameId, password },
         (response: SocketResponse) => {
           if (response.success) {
-            $activeComponent = "Game";
+            $activeComponent = "GameLobby";
             $activeComponentLabel = "Game";
+            $currentGame = response.data as Game;
+            console.log("Joined game: ", $currentGame);
             return;
         }
         addAlert({
@@ -117,7 +119,7 @@
     <div class="pt-8">
       {#if games.length === 0}
         <p>No games available</p>
-        <p>Wait for host to start the game</p>
+        <p>Wait for host to create a game</p>
         <Spinner />
       {/if}
       {#if games.length > 0}

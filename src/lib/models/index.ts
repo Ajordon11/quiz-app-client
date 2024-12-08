@@ -27,4 +27,11 @@ export type Game = {
     questionSet: string;
     createdAt: Date;
     players: number;
+    currentRound: number;
+};
+
+export type Question = {
+    question: string;
+    type: string;
+    options: string[];
 };
