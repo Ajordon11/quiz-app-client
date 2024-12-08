@@ -1,19 +1,20 @@
 <script lang="ts">
   import { Button } from "flowbite-svelte";
   import { untrack } from "svelte";
+  import QuestionText from "./shared/QuestionText.svelte";
+  import ProgressBar from "./shared/ProgressBar.svelte";
 
   let disabled = $state(false);
   let selectedAnswer = $state({
-    answer: '',
-    index: -1
+    answer: "",
+    index: -1,
   });
   const { question, sendAnswer, correctAnswer } = $props();
-  let buttonsColor: any[] = $state(question.options.map(() => 'light'));
-  
-  
+  let buttonsColor: any[] = $state(question.options.map(() => "light"));
+
   function chooseAnswer(answer: string, index: number) {
     console.log(answer, index);
-    buttonsColor[index] = 'blue';
+    buttonsColor[index] = "blue";
     selectedAnswer = { answer, index };
     disabled = true;
     sendAnswer(answer);
@@ -26,25 +27,25 @@
     console.log("effect called");
     disabled = true;
     untrack(() => {
-        if (correctAnswer === selectedAnswer.answer) {
-            buttonsColor[selectedAnswer.index] = 'green';
-        } else if (selectedAnswer.index === -1) {
-            // nothing selected
-            buttonsColor = question.options.map(() => 'red');
-            const correctIndex = question.options.indexOf(correctAnswer);
-            buttonsColor[correctIndex] = 'green';
-        } else {
-            buttonsColor[selectedAnswer.index] = 'red';
-            const correctIndex = question.options.indexOf(correctAnswer);
-            buttonsColor[correctIndex] = 'green';
-        }
-    })
-  })
-
+      if (correctAnswer === selectedAnswer.answer) {
+        buttonsColor[selectedAnswer.index] = "green";
+      } else if (selectedAnswer.index === -1) {
+        // nothing selected
+        buttonsColor = question.options.map(() => "red");
+        const correctIndex = question.options.indexOf(correctAnswer);
+        buttonsColor[correctIndex] = "green";
+      } else {
+        buttonsColor[selectedAnswer.index] = "red";
+        const correctIndex = question.options.indexOf(correctAnswer);
+        buttonsColor[correctIndex] = "green";
+      }
+    });
+  });
 </script>
 
+<ProgressBar />
 <div class="h-max flex flex-col justify-center items-center">
-  <h1 class="text-3xl font-bold text-white">{question.question}</h1>
+  <QuestionText>{question.question}</QuestionText>
   {#each question.options as option, index}
     <Button
       pill

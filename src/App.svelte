@@ -2,14 +2,13 @@
   import { activeComponent, currentGame, currentQuestion, socket } from "./lib/stores/index ";
   import ConnectPage from "./components/ConnectPage.svelte";
   import Lobby from "./components/Lobby.svelte";
-  import { BookOpenSolid } from "flowbite-svelte-icons";
   import Alerts from "./components/Alerts.svelte";
   import { Spinner } from "flowbite-svelte";
   import QuestionMultipleChoice from "./components/QuestionMultipleChoice.svelte";
   import type { Question } from "./lib/models";
   import QuestionOrder from "./components/QuestionOrder.svelte";
   import QuestionLetter from "./components/QuestionLetter.svelte";
-
+  
   let correctAnswer = $state();
 
   $socket.on("server-info", (data) => {
@@ -24,6 +23,7 @@
   });
 
   $socket.on("next-question", (data: Question) => {
+    correctAnswer = null;
     console.log("Next question: ", data);
     selectQuestionType(data.type);
     // $currentGame.currentRound++;
@@ -67,7 +67,7 @@
 </script>
 
 <main class="dark">
-  <div class="flex flex-col items-center justify-center overflow-hidden max-h-screen">
+  <div class="flex flex-col items-center justify-start overflow-hidden max-h-screen mt-10">
     <Alerts />
     {#if $activeComponent === "ConnectPage"}
       <ConnectPage />
@@ -84,8 +84,8 @@
       <QuestionMultipleChoice question={$currentQuestion} {sendAnswer} {correctAnswer} />
     {/if}
     {#if $activeComponent === "QuestionLetter"}
-        <QuestionLetter question={$currentQuestion} {sendAnswer} {correctAnswer} />
-        {/if}
+      <QuestionLetter question={$currentQuestion} {sendAnswer} {correctAnswer} />
+    {/if}
     {#if $activeComponent === "QuestionOrder"}
       <QuestionOrder question={$currentQuestion} {sendAnswer} {correctAnswer} />
     {/if}

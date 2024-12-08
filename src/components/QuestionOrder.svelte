@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Button } from "flowbite-svelte";
   import { PlayOutline, RefreshOutline } from "flowbite-svelte-icons";
+  import QuestionText from "./shared/QuestionText.svelte";
+  import ProgressBar from "./shared/ProgressBar.svelte";
 
   let currentOrder = $state(0);
   let answer = $state("");
@@ -82,8 +84,9 @@
   }
 </script>
 
+<ProgressBar />
 <div class="h-max flex flex-col justify-center items-center">
-  <h1 class="text-3xl font-bold text-white">{question.question}</h1>
+  <QuestionText>{question.question}</QuestionText>
   <div class="mt-5">
     <Button size="lg" color="dark" on:click={() => reset()} disabled={answerSent}
       ><RefreshOutline class="w-5 h-5 me-2" />Reset</Button

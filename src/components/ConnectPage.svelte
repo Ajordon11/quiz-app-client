@@ -2,7 +2,7 @@
   import { activeComponent, socket } from "../lib/stores/index ";
   import { Spinner } from "flowbite-svelte";
   import { CheckCircleSolid } from "flowbite-svelte-icons";
-  import CustomLabel from "./CustomLabel.svelte";
+  import CustomLabel from "./shared/CustomLabel.svelte";
 
   let connected: boolean = false;
 

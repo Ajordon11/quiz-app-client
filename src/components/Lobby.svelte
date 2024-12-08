@@ -3,6 +3,7 @@
     Button,
     ButtonGroup,
     Input,
+    Label,
     Spinner,
     Table,
     TableBody,
@@ -17,7 +18,7 @@
   import { addAlert, clearAlerts } from "../lib/stores/alerts";
   import { onMount } from "svelte";
   import Time from "svelte-time";
-  import CustomLabel from "./CustomLabel.svelte";
+  import CustomLabel from "./shared/CustomLabel.svelte";
 
   onMount(() => {
     getAvailableGames();
