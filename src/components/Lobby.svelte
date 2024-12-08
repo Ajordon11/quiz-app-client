@@ -3,7 +3,6 @@
     Button,
     ButtonGroup,
     Input,
-    Label,
     Spinner,
     Table,
     TableBody,
@@ -13,11 +12,12 @@
     TableHeadCell,
     type SelectOptionType,
   } from "flowbite-svelte";
-  import { activeComponent, activeComponentLabel, currentGame, player, socket, URL } from "../lib/stores/index ";
+  import { activeComponent, currentGame, player, socket, URL } from "../lib/stores/index ";
   import type { Game, Player, SocketResponse } from "../lib/models";
   import { addAlert, clearAlerts } from "../lib/stores/alerts";
   import { onMount } from "svelte";
   import Time from "svelte-time";
+  import CustomLabel from "./CustomLabel.svelte";
 
   onMount(() => {
     getAvailableGames();
@@ -82,7 +82,6 @@
         (response: SocketResponse) => {
           if (response.success) {
             $activeComponent = "GameLobby";
-            $activeComponentLabel = "Game";
             $currentGame = response.data as Game;
             console.log("Joined game: ", $currentGame);
             return;
@@ -98,6 +97,7 @@
   }
 </script>
 
+<CustomLabel>Lobby</CustomLabel>
 <div>
   {#if !playerConnected}
     <div class="pt-8">

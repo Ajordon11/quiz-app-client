@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Button } from "flowbite-svelte";
+  import { untrack } from "svelte";
 
   let disabled = $state(false);
   let selectedAnswer = $state({
@@ -11,6 +12,7 @@
   
   
   function chooseAnswer(answer: string, index: number) {
+    console.log(answer, index);
     buttonsColor[index] = 'blue';
     selectedAnswer = { answer, index };
     disabled = true;
@@ -21,18 +23,22 @@
     if (!correctAnswer) {
       return;
     }
-    if (correctAnswer === selectedAnswer.answer) {
-        buttonsColor[selectedAnswer.index] = 'green';
-    } else if (selectedAnswer.index === -1) {
-        // nothing selected
-        buttonsColor = question.options.map(() => 'red');
-        const correctIndex = question.options.indexOf(correctAnswer);
-        buttonsColor[correctIndex] = 'green';
-    } else {
-        buttonsColor[selectedAnswer.index] = 'red';
-        const correctIndex = question.options.indexOf(correctAnswer);
-        buttonsColor[correctIndex] = 'green';
-    }
+    console.log("effect called");
+    disabled = true;
+    untrack(() => {
+        if (correctAnswer === selectedAnswer.answer) {
+            buttonsColor[selectedAnswer.index] = 'green';
+        } else if (selectedAnswer.index === -1) {
+            // nothing selected
+            buttonsColor = question.options.map(() => 'red');
+            const correctIndex = question.options.indexOf(correctAnswer);
+            buttonsColor[correctIndex] = 'green';
+        } else {
+            buttonsColor[selectedAnswer.index] = 'red';
+            const correctIndex = question.options.indexOf(correctAnswer);
+            buttonsColor[correctIndex] = 'green';
+        }
+    })
   })
 
 </script>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "flowbite-svelte";
   import { getAlphabet } from "../lib/stores/index ";
+  import { untrack } from "svelte";
 
   const { question, sendAnswer, correctAnswer } = $props();
   const alphabet = getAlphabet();
@@ -22,18 +23,21 @@
     if (!correctAnswer) {
       return;
     }
-    if (correctAnswer === selectedAnswer.answer) {
-      buttonsColor[selectedAnswer.index] = "green";
-    } else if (selectedAnswer.index === -1) {
-      // nothing selected
-      buttonsColor = alphabet.map(() => "red");
-      const correctIndex = alphabet.indexOf(correctAnswer);
-      buttonsColor[correctIndex] = "green";
-    } else {
-      buttonsColor[selectedAnswer.index] = "red";
-      const correctIndex = alphabet.indexOf(correctAnswer);
-      buttonsColor[correctIndex] = "green";
-    }
+    disabled = true;
+    untrack(() => {
+        if (correctAnswer === selectedAnswer.answer) {
+          buttonsColor[selectedAnswer.index] = "green";
+        } else if (selectedAnswer.index === -1) {
+          // nothing selected
+          buttonsColor = alphabet.map(() => "red");
+          const correctIndex = alphabet.indexOf(correctAnswer);
+          buttonsColor[correctIndex] = "green";
+        } else {
+          buttonsColor[selectedAnswer.index] = "red";
+          const correctIndex = alphabet.indexOf(correctAnswer);
+          buttonsColor[correctIndex] = "green";
+        }
+    })
   })
 </script>
 

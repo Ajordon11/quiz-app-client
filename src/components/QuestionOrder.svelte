@@ -62,6 +62,8 @@
     if (!correctAnswer) {
       return;
     }
+    answerSent = true;
+    buttons.forEach((button) => (button.disabled = true));
     if (correctAnswer === answer) {
       buttons.forEach((button) => (button.color = "green"));
     } else {

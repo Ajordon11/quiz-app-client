@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { activeComponent, activeComponentLabel, currentGame, currentQuestion, socket } from "./lib/stores/index ";
+  import { activeComponent, currentGame, currentQuestion, socket } from "./lib/stores/index ";
   import ConnectPage from "./components/ConnectPage.svelte";
   import Lobby from "./components/Lobby.svelte";
   import { BookOpenSolid } from "flowbite-svelte-icons";
@@ -68,14 +68,6 @@
 
 <main class="dark">
   <div class="flex flex-col items-center justify-center overflow-hidden max-h-screen">
-    <div class="top-0">
-      <div>
-        <BookOpenSolid color="white" size="xl" class="inline-block m-2 mb-5" />
-        <h1 class="text-4xl font-bold text-white inline-block">
-          {$activeComponentLabel}
-        </h1>
-      </div>
-    </div>
     <Alerts />
     {#if $activeComponent === "ConnectPage"}
       <ConnectPage />
