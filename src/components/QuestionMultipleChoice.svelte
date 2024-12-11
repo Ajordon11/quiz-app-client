@@ -1,46 +1,46 @@
 <script lang="ts">
-  import { Button } from "flowbite-svelte";
-  import { untrack } from "svelte";
-  import QuestionText from "./shared/QuestionText.svelte";
-  import ProgressBar from "./shared/ProgressBar.svelte";
+  import { Button } from 'flowbite-svelte'
+  import { untrack } from 'svelte'
+  import QuestionText from './shared/QuestionText.svelte'
+  import ProgressBar from './shared/ProgressBar.svelte'
 
-  let disabled = $state(false);
+  let disabled = $state(false)
   let selectedAnswer = $state({
-    answer: "",
-    index: -1,
-  });
-  const { question, sendAnswer, correctAnswer } = $props();
-  let buttonsColor: any[] = $state(question.options.map(() => "light"));
+    answer: '',
+    index: -1
+  })
+  const { question, sendAnswer, correctAnswer } = $props()
+  let buttonsColor: any[] = $state(question.options.map(() => 'light'))
 
   function chooseAnswer(answer: string, index: number) {
-    console.log(answer, index);
-    buttonsColor[index] = "blue";
-    selectedAnswer = { answer, index };
-    disabled = true;
-    sendAnswer(answer);
+    console.log(answer, index)
+    buttonsColor[index] = 'blue'
+    selectedAnswer = { answer, index }
+    disabled = true
+    sendAnswer(answer)
   }
 
   $effect(() => {
     if (!correctAnswer) {
-      return;
+      return
     }
-    console.log("effect called");
-    disabled = true;
+    console.log('effect called')
+    disabled = true
     untrack(() => {
       if (correctAnswer === selectedAnswer.answer) {
-        buttonsColor[selectedAnswer.index] = "green";
+        buttonsColor[selectedAnswer.index] = 'green'
       } else if (selectedAnswer.index === -1) {
         // nothing selected
-        buttonsColor = question.options.map(() => "red");
-        const correctIndex = question.options.indexOf(correctAnswer);
-        buttonsColor[correctIndex] = "green";
+        buttonsColor = question.options.map(() => 'red')
+        const correctIndex = question.options.indexOf(correctAnswer)
+        buttonsColor[correctIndex] = 'green'
       } else {
-        buttonsColor[selectedAnswer.index] = "red";
-        const correctIndex = question.options.indexOf(correctAnswer);
-        buttonsColor[correctIndex] = "green";
+        buttonsColor[selectedAnswer.index] = 'red'
+        const correctIndex = question.options.indexOf(correctAnswer)
+        buttonsColor[correctIndex] = 'green'
       }
-    });
-  });
+    })
+  })
 </script>
 
 <ProgressBar />

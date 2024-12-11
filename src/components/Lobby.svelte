@@ -11,89 +11,89 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
-    type SelectOptionType,
-  } from "flowbite-svelte";
-  import { activeComponent, currentGame, player, socket, URL } from "../lib/stores/index ";
-  import type { Game, Player, SocketResponse } from "../lib/models";
-  import { addAlert, clearAlerts } from "../lib/stores/alerts";
-  import { onMount } from "svelte";
-  import Time from "svelte-time";
-  import CustomLabel from "./shared/CustomLabel.svelte";
+    type SelectOptionType
+  } from 'flowbite-svelte'
+  import { activeComponent, currentGame, player, socket, URL } from '../lib/stores/index '
+  import type { Game, Player, SocketResponse } from '../lib/models'
+  import { addAlert, clearAlerts } from '../lib/stores/alerts'
+  import { onMount } from 'svelte'
+  import Time from 'svelte-time'
+  import CustomLabel from './shared/CustomLabel.svelte'
 
   onMount(() => {
-    getAvailableGames();
-  });
+    getAvailableGames()
+  })
 
-  let playerConnected: boolean = false;
-  let name: string;
-  let loading: boolean = false;
-  let games: Game[] = [];
-  let gamesAsOptions: SelectOptionType<any>[] = [];
-  let selectedGameId: string;
-  let gameSelected: Game;
-  let password: string;
+  let playerConnected: boolean = false
+  let name: string
+  let loading: boolean = false
+  let games: Game[] = []
+  let gamesAsOptions: SelectOptionType<any>[] = []
+  let selectedGameId: string
+  let gameSelected: Game
+  let password: string
 
   function connectPlayer() {
-    clearAlerts();
-    loading = true;
-    $socket.emit("player-create", { name }, (response: SocketResponse) => {
-      console.log("Response from server on player create: ", response);
+    clearAlerts()
+    loading = true
+    $socket.emit('player-create', { name }, (response: SocketResponse) => {
+      console.log('Response from server on player create: ', response)
       if (response.success) {
-        $player = response.data as Player;
-        playerConnected = true;
+        $player = response.data as Player
+        playerConnected = true
       } else {
         addAlert({
-          color: "red",
+          color: 'red',
           message: response.message,
-          title: "Login error",
-        });
+          title: 'Login error'
+        })
       }
-    });
+    })
   }
 
-  $socket.on("game-created", (data) => {
-    console.log("New game created on server: ", data);
-    getAvailableGames();
-  });
+  $socket.on('game-created', (data) => {
+    console.log('New game created on server: ', data)
+    getAvailableGames()
+  })
 
   async function getAvailableGames() {
-    const res = await fetch($URL + "/api/games/available");
-    games = (await res.json()) as Game[];
+    const res = await fetch($URL + '/api/games/available')
+    games = (await res.json()) as Game[]
     gamesAsOptions = games.map((game) => {
       return {
         name: game.name,
-        value: game.id,
-      };
-    });
-    console.log(games);
-    loading = false;
+        value: game.id
+      }
+    })
+    console.log(games)
+    loading = false
   }
 
   function selectGame(game: Game) {
-    selectedGameId = game.id;
-    gameSelected = game;
+    selectedGameId = game.id
+    gameSelected = game
   }
 
   function joinGame() {
-    clearAlerts();
+    clearAlerts()
     if (selectedGameId && password) {
       $socket.emit(
-        "game-join",
+        'game-join',
         { gameId: selectedGameId, password },
         (response: SocketResponse) => {
           if (response.success) {
-            $activeComponent = "GameLobby";
-            $currentGame = response.data as Game;
-            console.log("Joined game: ", $currentGame);
-            return;
+            $activeComponent = 'GameLobby'
+            $currentGame = response.data as Game
+            console.log('Joined game: ', $currentGame)
+            return
+          }
+          addAlert({
+            color: 'red',
+            message: response.message,
+            title: 'Join error'
+          })
         }
-        addAlert({
-          color: "red",
-          message: response.message,
-          title: "Join error",
-        })
-    })
-
+      )
     }
   }
 </script>
@@ -152,7 +152,8 @@
                 <TableBodyCell>
                   <button
                     on:click={() => selectGame(game)}
-                    class="pointer font-medium text-primary-600 hover:underline dark:text-primary-500">Join</button
+                    class="pointer font-medium text-primary-600 hover:underline dark:text-primary-500"
+                    >Join</button
                   >
                 </TableBodyCell>
               </TableBodyRow>

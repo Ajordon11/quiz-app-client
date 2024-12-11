@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { activeComponent, socket } from "../lib/stores/index ";
-  import { Spinner } from "flowbite-svelte";
-  import { CheckCircleSolid } from "flowbite-svelte-icons";
-  import CustomLabel from "./shared/CustomLabel.svelte";
+  import { activeComponent, socket } from '../lib/stores/index '
+  import { Spinner } from 'flowbite-svelte'
+  import { CheckCircleSolid } from 'flowbite-svelte-icons'
+  import CustomLabel from './shared/CustomLabel.svelte'
 
-  let connected: boolean = false;
+  let connected: boolean = false
 
-  $socket.on("connect", () => {
-    console.log("Connected to server");
-    connected = true;
+  $socket.on('connect', () => {
+    console.log('Connected to server')
+    connected = true
     setTimeout(() => {
-      $activeComponent = "Lobby";
-    }, 3000);
-  });
+      $activeComponent = 'Lobby'
+    }, 3000)
+  })
 </script>
 
 <CustomLabel>Connection</CustomLabel>
