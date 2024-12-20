@@ -11,6 +11,11 @@
 
   let correctAnswer = $state()
 
+  $socket.on('player-removed', () => {
+    $currentGame = null
+    $currentQuestion = null
+    $activeComponent = 'Lobby'
+  })
   $socket.on('server-info', (data) => {
     console.log(data)
     $socket.emit('message', 'Hello')
@@ -18,7 +23,7 @@
   $socket.on('game-started', (data) => {
     console.log('Game is starting: ', data)
     selectQuestionType(data.type)
-    $currentGame.currentRound = 1
+    $currentGame!.currentRound = 1
     $currentQuestion = data
   })
 

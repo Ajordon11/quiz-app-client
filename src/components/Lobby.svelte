@@ -3,14 +3,7 @@
     Button,
     ButtonGroup,
     Input,
-    Label,
     Spinner,
-    Table,
-    TableBody,
-    TableBodyCell,
-    TableBodyRow,
-    TableHead,
-    TableHeadCell,
     type SelectOptionType
   } from 'flowbite-svelte'
   import { activeComponent, currentGame, player, socket, URL } from '../lib/stores/index '
@@ -22,6 +15,7 @@
 
   onMount(() => {
     getAvailableGames()
+    checkIfLoggedIn()
   })
 
   let playerConnected: boolean = false
@@ -29,9 +23,7 @@
   let loading: boolean = false
   let games: Game[] = []
   let gamesAsOptions: SelectOptionType<any>[] = []
-  let selectedGameId: string
-  let gameSelected: Game
-  let password: string
+  let codes: string[] = [];
 
   function connectPlayer() {
     clearAlerts()
@@ -40,6 +32,7 @@
       console.log('Response from server on player create: ', response)
       if (response.success) {
         $player = response.data as Player
+        localStorage.setItem('playerName', $player.name)
         playerConnected = true
       } else {
         addAlert({
@@ -69,17 +62,24 @@
     loading = false
   }
 
-  function selectGame(game: Game) {
-    selectedGameId = game.id
-    gameSelected = game
+  function checkIfLoggedIn() {
+    if ($player) {
+      console.log('player is connected ', $player)
+      playerConnected = true
+    }
+    if (localStorage.getItem('playerName')) {
+      name = localStorage.getItem('playerName')!
+    }
   }
 
-  function joinGame() {
+  function joinGame(gameId: string, i: number) {
     clearAlerts()
-    if (selectedGameId && password) {
+    const code = codes[i]
+    console.log('Joining game: ', gameId, code);
+    if (gameId && code) {
       $socket.emit(
         'game-join',
-        { gameId: selectedGameId, password },
+        { gameId, code },
         (response: SocketResponse) => {
           if (response.success) {
             $activeComponent = 'GameLobby'
@@ -105,7 +105,7 @@
       <ButtonGroup class="w-full" size="lg">
         <Input id="name" type="text" placeholder="Player/team name" bind:value={name} />
         {#if !loading}
-          <Button color="primary" on:click={() => connectPlayer()}>Create</Button>
+          <Button color="primary" on:click={() => connectPlayer()}>Join</Button>
         {/if}
         {#if loading}
           <Button disabled>
@@ -116,61 +116,51 @@
     </div>
   {/if}
 
-  {#if playerConnected && !gameSelected}
-    <div class="pt-8">
-      {#if games.length === 0}
-        <p>No games available</p>
-        <p>Wait for host to create a game</p>
-        <Spinner />
-      {/if}
+  {#if playerConnected}
+    <div class="p-4">
+      <!-- Header -->
+      <h1 class="text-2xl font-bold text-center text-white mb-4">Available Games</h1>
+
       {#if games.length > 0}
-        <h1 class="text-4xl font-bold mb-3">Available games</h1>
-        <Table hoverable={true}>
-          <TableHead>
-            <TableHeadCell>Name</TableHeadCell>
-            <TableHeadCell>Rounds</TableHeadCell>
-            <TableHeadCell>Players</TableHeadCell>
-            <TableHeadCell>Created at</TableHeadCell>
-            <TableHeadCell>
-              <span class="sr-only">Join</span>
-            </TableHeadCell>
-          </TableHead>
-          <TableBody tableBodyClass="divide-y">
-            {#each games as game}
-              <TableBodyRow>
-                <TableBodyCell>{game.name}</TableBodyCell>
-                <TableBodyCell>{game.rounds}</TableBodyCell>
-                <TableBodyCell>{game.players}</TableBodyCell>
-                <TableBodyCell
-                  ><Time
+        <!-- Game List -->
+        <ul class="space-y-3">
+          {#each games as game, index}
+            <li
+              class="p-4 bg-white shadow-md rounded-lg border border-gray-200 flex flex-col space-y-2"
+            >
+              <!-- Game Name -->
+              <h2 class="text-2xl font-semibold text-gray-800">{game.name}</h2>
+
+              <!-- Game Details -->
+              <div class="text-lg text-gray-600">
+                <p><span class="font-medium">Rounds:</span> {game.rounds}</p>
+                <p><span class="font-medium">Players:</span> {game.players} connected</p>
+                <p>
+                  <span class="font-medium">Created:</span>
+                  <Time
                     relative
                     live
                     format="dddd @ h:mm A · MMMM D, YYYY"
                     timestamp={game.createdAt}
-                  /></TableBodyCell
-                >
-                <TableBodyCell>
-                  <button
-                    on:click={() => selectGame(game)}
-                    class="pointer font-medium text-primary-600 hover:underline dark:text-primary-500"
-                    >Join</button
-                  >
-                </TableBodyCell>
-              </TableBodyRow>
-            {/each}
-          </TableBody>
-        </Table>
-      {/if}
-    </div>
-  {/if}
+                  />
+                </p>
+              </div>
 
-  {#if gameSelected}
-    <div class="pt-8">
-      <Label for="name" class="float-left mb-2">Enter password for game: {gameSelected.name}</Label>
-      <ButtonGroup class="w-full" size="lg">
-        <Input id="name" type="text" placeholder="Password" bind:value={password} />
-        <Button color="primary" on:click={() => joinGame()}>Enter</Button>
-      </ButtonGroup>
+              <!-- Join Button -->
+              <div class="mt-2">
+                <ButtonGroup class="w-full" size="md">
+                  <Input id="name" type="text" placeholder="Enter code" bind:value={codes[index]} />
+                  <Button color="primary"  on:click={() => joinGame(game.id, index)}>Join Game</Button>
+                </ButtonGroup>
+              </div>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p>No games available</p>
+        <p>Wait for host to create a game</p>
+        <Spinner />
+      {/if}
     </div>
   {/if}
 </div>

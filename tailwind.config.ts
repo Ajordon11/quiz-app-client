@@ -17,8 +17,8 @@ const config: Config = {
         background: "#1e1b4b",
         // purple-900
         secondary: "#581c87",
-		// gray-400
-		tertiary: "#9ca3af"
+		    // gray-400
+		    tertiary: "#9ca3af"
       },
     },
   },
