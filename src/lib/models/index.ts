@@ -1,13 +1,14 @@
 export type SocketResponse = {
   success: boolean
   message: string
-  data: object
+  data: any
 }
 
 export type Player = {
   id: string
   name: string
-  ready: boolean
+  connected: boolean
+  score?: number
 }
 
 export type AlertProps = {
@@ -34,4 +35,5 @@ export type Question = {
   question: string
   type: string
   options: string[]
+  image?: string
 }

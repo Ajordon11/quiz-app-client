@@ -14,10 +14,13 @@
     index: -1
   })
 
-  function selectAnswer(letter: string, index: number) {
+  async function selectAnswer(letter: string, index: number) {
     disabled = true
+    const received = await sendAnswer(letter)
+    if (!received) {
+      return
+    }
     buttonsColor[index] = 'blue'
-    sendAnswer(letter)
     selectedAnswer = { answer: letter, index }
   }
 
@@ -27,7 +30,7 @@
     }
     disabled = true
     untrack(() => {
-      if (correctAnswer === selectedAnswer.answer) {
+      if (correctAnswer.split(' ').includes(selectedAnswer.answer)) {
         buttonsColor[selectedAnswer.index] = 'green'
       } else if (selectedAnswer.index === -1) {
         // nothing selected

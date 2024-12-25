@@ -1,13 +1,14 @@
 <script lang="ts">
+  import { Button, ButtonGroup, Input, Spinner, type SelectOptionType } from 'flowbite-svelte'
   import {
-    Button,
-    ButtonGroup,
-    Input,
-    Spinner,
-    type SelectOptionType
-  } from 'flowbite-svelte'
-  import { activeComponent, currentGame, player, socket, URL } from '../lib/stores/index '
-  import type { Game, Player, SocketResponse } from '../lib/models'
+    activeComponent,
+    currentGame,
+    currentQuestion,
+    player,
+    socket,
+    URL
+  } from '../lib/stores/index '
+  import type { Game, Player, Question, SocketResponse } from '../lib/models'
   import { addAlert, clearAlerts } from '../lib/stores/alerts'
   import { onMount } from 'svelte'
   import Time from 'svelte-time'
@@ -23,7 +24,7 @@
   let loading: boolean = false
   let games: Game[] = []
   let gamesAsOptions: SelectOptionType<any>[] = []
-  let codes: string[] = [];
+  let codes: string[] = []
 
   function connectPlayer() {
     clearAlerts()
@@ -31,15 +32,19 @@
     $socket.emit('player-create', { name }, (response: SocketResponse) => {
       console.log('Response from server on player create: ', response)
       if (response.success) {
-        $player = response.data as Player
+        $player = response.data.player as Player
         localStorage.setItem('playerName', $player.name)
         playerConnected = true
+        if (response.data.game) {
+          joinGameInProgress(response.data)
+        }
       } else {
         addAlert({
           color: 'red',
           message: response.message,
           title: 'Login error'
         })
+        loading = false
       }
     })
   }
@@ -50,7 +55,7 @@
   })
 
   async function getAvailableGames() {
-    const res = await fetch($URL + '/api/games/available')
+    const res = await fetch($URL + '/api/games')
     games = (await res.json()) as Game[]
     gamesAsOptions = games.map((game) => {
       return {
@@ -75,25 +80,51 @@
   function joinGame(gameId: string, i: number) {
     clearAlerts()
     const code = codes[i]
-    console.log('Joining game: ', gameId, code);
+    console.log('Joining game: ', gameId, code)
     if (gameId && code) {
-      $socket.emit(
-        'game-join',
-        { gameId, code },
-        (response: SocketResponse) => {
-          if (response.success) {
-            $activeComponent = 'GameLobby'
-            $currentGame = response.data as Game
-            console.log('Joined game: ', $currentGame)
-            return
-          }
-          addAlert({
-            color: 'red',
-            message: response.message,
-            title: 'Join error'
-          })
+      $socket.emit('game-join', { gameId, code }, (response: SocketResponse) => {
+        if (response.success) {
+          $activeComponent = 'GameLobby'
+          $currentGame = response.data as Game
+          console.log('Joined game: ', $currentGame)
+          return
         }
-      )
+        addAlert({
+          color: 'red',
+          message: response.message,
+          title: 'Join error'
+        })
+      })
+    }
+  }
+
+  function joinGameInProgress(data: { game: Game; player: Player, question: Question }) {
+    if (data.game.currentRound === 0) {
+      $activeComponent = 'GameLobby'
+      $currentGame = data.game
+      return;
+    }
+    if (data.question) {
+      selectQuestionType(data.question.type)
+      $currentGame = data.game
+      $currentQuestion = data.question
+    }
+  }
+
+  function selectQuestionType(type: string) {
+    switch (type) {
+      case 'MULTIPLE_CHOICE':
+        $activeComponent = 'QuestionMultipleChoice'
+        break
+      case 'LETTER':
+        $activeComponent = 'QuestionLetter'
+        break
+      case 'ORDER':
+        $activeComponent = 'QuestionOrder'
+        break
+      case 'NUMBER':
+        $activeComponent = 'QuestionNumber'
+        break
     }
   }
 </script>
@@ -150,7 +181,9 @@
               <div class="mt-2">
                 <ButtonGroup class="w-full" size="md">
                   <Input id="name" type="text" placeholder="Enter code" bind:value={codes[index]} />
-                  <Button color="primary"  on:click={() => joinGame(game.id, index)}>Join Game</Button>
+                  <Button color="primary" on:click={() => joinGame(game.id, index)}
+                    >Join Game</Button
+                  >
                 </ButtonGroup>
               </div>
             </li>

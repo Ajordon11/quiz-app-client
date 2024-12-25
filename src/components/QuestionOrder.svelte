@@ -8,6 +8,7 @@
   let answer = $state('')
   let allSelected = $state(false)
   let answerSent = $state(false)
+  let answerReceived = $state(false)
 
   const { question, sendAnswer, correctAnswer } = $props()
   let buttons: any[] = $state(
@@ -50,14 +51,14 @@
     }
   }
 
-  function confirmAnswer() {
+  async function confirmAnswer() {
     buttons.forEach((button) => (button.disabled = true))
     answer = buttons
-      .sort((a, b) => (a.order > b.order ? 1 : -1))
-      .map((btn) => btn.option)
-      .join(',')
-    sendAnswer(answer)
+    .sort((a, b) => (a.order > b.order ? 1 : -1))
+    .map((btn) => btn.option)
+    .join(',')
     answerSent = true
+    answerReceived = await sendAnswer(answer)
   }
 
   $effect(() => {
@@ -66,11 +67,12 @@
     }
     answerSent = true
     buttons.forEach((button) => (button.disabled = true))
-    if (correctAnswer === answer) {
+    if (correctAnswer === answer && answerReceived) {
       buttons.forEach((button) => (button.color = 'green'))
     } else {
       buttons.forEach((button) => (button.color = 'red'))
     }
+    answerReceived = false
   })
 
   function reset(): void {

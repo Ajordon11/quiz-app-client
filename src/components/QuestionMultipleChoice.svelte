@@ -12,12 +12,15 @@
   const { question, sendAnswer, correctAnswer } = $props()
   let buttonsColor: any[] = $state(question.options.map(() => 'light'))
 
-  function chooseAnswer(answer: string, index: number) {
+  async function chooseAnswer(answer: string, index: number) {
     console.log(answer, index)
+    disabled = true
+    const received = await sendAnswer(answer)
+    if (!received) {
+      return
+    }
     buttonsColor[index] = 'blue'
     selectedAnswer = { answer, index }
-    disabled = true
-    sendAnswer(answer)
   }
 
   $effect(() => {
