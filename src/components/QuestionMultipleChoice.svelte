@@ -24,6 +24,14 @@
   }
 
   $effect(() => {
+    if (question) {
+      selectedAnswer = { answer: '', index: -1 }
+      buttonsColor = question.options.map(() => 'light')
+      disabled = false
+    }
+  })
+  
+  $effect(() => {
     if (!correctAnswer) {
       return
     }

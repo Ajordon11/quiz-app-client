@@ -3,6 +3,7 @@
   import { PlayOutline, RefreshOutline } from 'flowbite-svelte-icons'
   import QuestionText from './shared/QuestionText.svelte'
   import ProgressBar from './shared/ProgressBar.svelte'
+  import { untrack } from 'svelte'
 
   let currentOrder = $state(0)
   let answer = $state('')
@@ -54,34 +55,56 @@
   async function confirmAnswer() {
     buttons.forEach((button) => (button.disabled = true))
     answer = buttons
-    .sort((a, b) => (a.order > b.order ? 1 : -1))
-    .map((btn) => btn.option)
-    .join(',')
+      .toSorted((a, b) => (a.order > b.order ? 1 : -1))
+      .map((btn) => btn.option)
+      .join(',')
     answerSent = true
     answerReceived = await sendAnswer(answer)
   }
 
   $effect(() => {
+    if (question) {
+      buttons = question.options.map((option: string) => ({
+        selected: false,
+        order: 0,
+        color: 'light',
+        disabled: false,
+        option
+      }))
+      answerSent = false
+      answerReceived = false
+      currentOrder = 0
+      allSelected = false
+      answer = ''
+    }
+  })
+
+  $effect(() => {
     if (!correctAnswer) {
       return
     }
-    answerSent = true
-    buttons.forEach((button) => (button.disabled = true))
-    if (correctAnswer === answer && answerReceived) {
-      buttons.forEach((button) => (button.color = 'green'))
-    } else {
-      buttons.forEach((button) => (button.color = 'red'))
-    }
-    answerReceived = false
+    untrack(() => {
+      answerSent = true
+      buttons.forEach((button) => (button.disabled = true))
+      const correctAnswerString =
+        typeof correctAnswer === 'string' ? correctAnswer : correctAnswer.join(',')
+      if (correctAnswerString === answer && answerReceived) {
+        buttons.forEach((button) => (button.color = 'green'))
+      } else {
+        buttons.forEach((button) => (button.color = 'red'))
+      }
+      answerReceived = false
+    })
   })
 
   function reset(): void {
     currentOrder = 0
     buttons.forEach((button) => (button.disabled = false))
-    buttons = question.options.map(() => ({
+    buttons = question.options.map((option: string) => ({
       selected: false,
       order: 0,
-      color: 'light'
+      color: 'light',
+      option
     }))
   }
 </script>

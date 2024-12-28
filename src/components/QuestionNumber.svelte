@@ -18,12 +18,20 @@
   }
 
   $effect(() => {
+    if (question) {
+      answer = ''
+      inputColor = 'base'
+      disabled = false
+    }
+  })
+  
+  $effect(() => {
     if (!correctAnswer) {
       return
     }
     disabled = true
     untrack(() => {
-      if (correctAnswer === answer) {
+      if (parseInt(correctAnswer) === parseInt(answer)) {
         inputColor = 'green'
       } else {
         inputColor = 'red'
@@ -44,7 +52,7 @@
 <div class="h-max flex flex-col justify-center items-center">
   <QuestionText>{question.question}</QuestionText>
   <div class="flex flex-col flex-1 justify-center gap-4 mx-auto w-full p-10">
-    <Input bind:value={answer} color={inputColor} class="w-full" size="lg"></Input>
+    <Input bind:value={answer} color={inputColor} class="w-full" size="lg" readonly></Input>
     <!-- Number Buttons -->
     <div class="grid grid-cols-3 gap-4">
       {#each ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as num}

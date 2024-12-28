@@ -11,20 +11,18 @@
   import Alerts from './components/Alerts.svelte'
   import { Progressbar, Spinner } from 'flowbite-svelte'
   import QuestionMultipleChoice from './components/QuestionMultipleChoice.svelte'
-  import type { Player, Question } from './lib/models'
+  import type { Question } from './lib/models'
   import QuestionOrder from './components/QuestionOrder.svelte'
   import QuestionLetter from './components/QuestionLetter.svelte'
   import { linear } from 'svelte/easing'
   import QuestionNumber from './components/QuestionNumber.svelte'
-  import PlayerScoreList from './components/PlayerScoreList.svelte'
+    import { tick } from 'svelte'
 
   let correctAnswer = $state()
   let progress = $state(0)
   let showCountdown = $state(false)
   let timeLeft = $countdownTime
-  let players: Player[] = $state([])
-  let lastQuestionType  = $state('')
-
+  let lastQuestionType = $state('')
 
   $socket.on('player-removed', () => {
     $currentGame = null
@@ -42,41 +40,51 @@
     $currentQuestion = data
   })
 
-  $socket.on('next-question', (data: Question) => {
+  $socket.on('next-question', (data: { question: Question; round: number }) => {
     correctAnswer = null
     console.log('Next question: ', data)
-    selectQuestionType(data.type)
-    $currentGame!.currentRound++
-    $currentQuestion = data
+    selectQuestionType(data.question.type)
+    console.log('selecting new question type ', data.question.type, $activeComponent)
+    $currentGame!.currentRound = data.round
+    $currentQuestion = data.question
   })
 
   $socket.on('countdown', () => {
-    console.log('Countdown')
     showCountdown = true
     timeLeft = $countdownTime
     updateTimer()
   })
 
-  $socket.on('correct-answer', (data) => {
+  $socket.on('correct-answer', (data: { answer: string, full: string }) => {
     console.log('Received answer: ', data)
-    correctAnswer = data
+    correctAnswer = data.answer
     showCountdown = false
     progress = 0
-    if ($activeComponent === 'Scoreboard') {
-      $activeComponent = lastQuestionType
-    }
   })
 
   $socket.on('game-joined', (data) => {
     console.log('Data on game joined: ', data)
   })
 
-  $socket.on('show-score', (data) => {
-    console.log('Show score: ', data)
-    lastQuestionType = $activeComponent
-    $activeComponent = 'Scoreboard'
-    players = data
+  $socket.on('game-deleted', () => {
+    $currentGame = null
+    $activeComponent = 'Lobby'
+    $currentQuestion = null
   })
+
+  $socket.on('game-ended', (data) => {
+    console.log('Data on game ended, do with them what you will: ', data)
+    $currentGame = null
+    $activeComponent = 'Lobby'
+    $currentQuestion = null
+  })
+
+  // $socket.on('show-score', (data) => {
+  //   console.log('Show score: ', data)
+  //   lastQuestionType = $activeComponent
+  //   $activeComponent = 'Scoreboard'
+  //   players = data
+  // })
 
   async function sendAnswer(answer: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -90,13 +98,11 @@
     if (timeLeft > 0) {
       timeLeft--
       progress = (($countdownTime - timeLeft) / $countdownTime) * 100
-      console.log('countdown', timeLeft, progress)
       setTimeout(updateTimer, 1000)
     } else {
       progress = 100
     }
   }
-
 
   function selectQuestionType(type: string) {
     switch (type) {
@@ -135,9 +141,15 @@
       <Lobby />
     {/if}
     {#if $activeComponent === 'GameLobby'}
-      <p>Game is not started</p>
-      <p>Wait for host to start the game</p>
-      <Spinner />
+      {#if $currentGame && $currentGame.currentRound > 0}
+        <h1 class="text-2xl font-bold text-center text-white mb-4">{$currentGame.name}</h1>
+        <p>Game will continue soon.</p>
+        <Spinner />
+      {:else}
+        <h1 class="text-2xl font-bold text-center text-white mb-4">Game is not started</h1>
+        <p>Wait for host to start the game</p>
+        <Spinner />
+      {/if}
     {/if}
     {#if $activeComponent === 'QuestionMultipleChoice'}
       <QuestionMultipleChoice question={$currentQuestion} {sendAnswer} {correctAnswer} />
@@ -150,9 +162,6 @@
     {/if}
     {#if $activeComponent === 'QuestionNumber'}
       <QuestionNumber question={$currentQuestion} {sendAnswer} {correctAnswer} />
-    {/if}
-    {#if $activeComponent === 'Scoreboard'}
-      <PlayerScoreList {players}/>
     {/if}
   </div>
 </main>

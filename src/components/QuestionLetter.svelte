@@ -25,12 +25,20 @@
   }
 
   $effect(() => {
+    if (question) {
+      buttonsColor = alphabet.map(() => 'light')
+      disabled = false
+      selectedAnswer = { answer: '', index: -1 }
+    }
+  })
+
+  $effect(() => {
     if (!correctAnswer) {
       return
     }
     disabled = true
     untrack(() => {
-      if (correctAnswer.split(' ').includes(selectedAnswer.answer)) {
+      if (selectedAnswer.answer.split(' ').includes(correctAnswer)) {
         buttonsColor[selectedAnswer.index] = 'green'
       } else if (selectedAnswer.index === -1) {
         // nothing selected
