@@ -1,7 +1,16 @@
 <script lang="ts">
-  import { Button, ButtonGroup, Input, Spinner, type SelectOptionType } from 'flowbite-svelte'
+  import {
+    Button,
+    ButtonGroup,
+    Input,
+    Label,
+    Select,
+    Spinner,
+    type SelectOptionType
+  } from 'flowbite-svelte'
   import {
     activeComponent,
+    availableSongs,
     currentGame,
     currentQuestion,
     player,
@@ -21,6 +30,7 @@
 
   let playerConnected: boolean = false
   let name: string
+  let song: string
   let loading: boolean = false
   let games: Game[] = []
   let gamesAsOptions: SelectOptionType<any>[] = []
@@ -29,11 +39,14 @@
   function connectPlayer() {
     clearAlerts()
     loading = true
-    $socket.emit('player-create', { name }, (response: SocketResponse) => {
+    $socket.emit('player-create', { name, song }, (response: SocketResponse) => {
       console.log('Response from server on player create: ', response)
       if (response.success) {
         $player = response.data.player as Player
         localStorage.setItem('playerName', $player.name)
+        if ($player.song) {
+          localStorage.setItem('playerSong', $player.song)
+        }
         playerConnected = true
         if (response.data.game) {
           joinGameInProgress(response.data)
@@ -75,6 +88,9 @@
     if (localStorage.getItem('playerName')) {
       name = localStorage.getItem('playerName')!
     }
+    if (localStorage.getItem('playerSong')) {
+      song = localStorage.getItem('playerSong')!
+    }
   }
 
   function joinGame(gameId: string, i: number) {
@@ -98,11 +114,11 @@
     }
   }
 
-  function joinGameInProgress(data: { game: Game; player: Player, question: Question }) {
+  function joinGameInProgress(data: { game: Game; player: Player; question: Question }) {
     if (data.game.currentRound === 0) {
       $activeComponent = 'GameLobby'
       $currentGame = data.game
-      return;
+      return
     }
     if (data.question) {
       selectQuestionType(data.question.type)
@@ -136,7 +152,9 @@
       <ButtonGroup class="w-full" size="lg">
         <Input id="name" type="text" placeholder="Player/team name" bind:value={name} />
         {#if !loading}
-          <Button color="primary" on:click={() => connectPlayer()}>Join</Button>
+          <Button color="primary" on:click={() => connectPlayer()} disabled={!name || !song}
+            >Join</Button
+          >
         {/if}
         {#if loading}
           <Button disabled>
@@ -144,6 +162,7 @@
           </Button>
         {/if}
       </ButtonGroup>
+      <Select class="mt-2" items={$availableSongs} bind:value={song} placeholder="Select song" />
     </div>
   {/if}
 

@@ -1,6 +1,7 @@
 import { io, type Socket } from 'socket.io-client'
 import { writable } from 'svelte/store'
 import type { Game, Player, Question } from '../models'
+import type { SelectOptionType } from 'flowbite-svelte'
 
 const url = import.meta.env.PROD
   ? import.meta.env.VITE_PROD_SERVER_URL
@@ -16,6 +17,7 @@ export const currentGame = writable<Game | null>()
 
 export const currentQuestion = writable<Question | null>()
 export const countdownTime = writable<number>(5)
+export const availableSongs = writable<SelectOptionType<string>[]>([ {value: 'Blue da ba dei', name: 'Blue da ba dei'} ])
 
 // Generate the alphabet dynamically
 export const getAlphabet = (length: number = 26) =>

@@ -9,6 +9,7 @@ export type Player = {
   name: string
   connected: boolean
   score?: number
+  song?: string
 }
 
 export type AlertProps = {
