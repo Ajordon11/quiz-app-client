@@ -17,7 +17,11 @@ export const currentGame = writable<Game | null>()
 
 export const currentQuestion = writable<Question | null>()
 export const countdownTime = writable<number>(5)
-export const availableSongs = writable<SelectOptionType<string>[]>([ {value: 'Blue da ba dei', name: 'Blue da ba dei'} ])
+export const availableSongs = writable<SelectOptionType<string>[]>([
+  { value: 'Da Ba Dee', name: 'Da Ba Dee' },
+  { value: 'Rebel', name: 'Rebel' },
+  { value: 'Rampa', name: 'Rampa' }
+])
 
 // Generate the alphabet dynamically
 export const getAlphabet = (length: number = 26) =>
